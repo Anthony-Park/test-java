@@ -16,10 +16,21 @@
 
 package org.springframework.samples.petclinic;
 
+import org.neo4j.cypherdsl.core.renderer.Configuration;
+import org.neo4j.cypherdsl.core.renderer.Dialect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
+import org.springframework.samples.petclinic.follow.user.User;
+import org.springframework.samples.petclinic.follow.user.UserRepository;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * PetClinic Spring Boot Application.
@@ -32,8 +43,70 @@ import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 @ImportRuntimeHints(PetClinicRuntimeHints.class)
 public class PetClinicApplication {
 
-	public static void main(String[] args) {
+	private final static Logger log = LoggerFactory.getLogger(PetClinicApplication.class);
+
+//	public static void main(String[] args) {
+//		SpringApplication.run(PetClinicApplication.class, args);
+//	}
+//}
+	public static void main(String[] args) throws Exception {
 		SpringApplication.run(PetClinicApplication.class, args);
+//		System.exit(0);
 	}
 
+	@Bean
+	Configuration cypherDslConfiguration() {
+		return Configuration.newConfig()
+			.withDialect(Dialect.NEO4J_5).build();
+	}
+
+	@Bean
+//	@Bean (name = "transactionManager")
+//	@Transactional
+	CommandLineRunner demo(UserRepository userRepository) {
+		return args -> {
+			userRepository.deleteAll();
+
+			User sam  = new User(9999L, "Sam99", "sam99@g-mail.com");
+			User tony = new User(9998L, "Tony99", "tony99@g-mail.com");
+
+			List<User> team = Arrays.asList(sam, tony);
+			log.info("Before linking up with Neo4j...");
+			team.stream().forEach(user -> log.info("\t" + user.toString()));
+			userRepository.save(sam);
+			userRepository.save(tony);
+
+//			User roy = new Person("Roy");
+//			User craig = new Person("Craig");
+//			List<Person> team = Arrays.asList(greg, roy, craig);
+//
+//			log.info("Before linking up with Neo4j...");
+//
+//			team.stream().forEach(person -> log.info("\t" + person.toString()));
+//
+//			personRepository.save(greg);
+//			personRepository.save(roy);
+//			personRepository.save(craig);
+//
+//			greg = personRepository.findByName(greg.getName());
+//			greg.worksWith(roy);
+//			greg.worksWith(craig);
+//			personRepository.save(greg);
+//
+//			roy = personRepository.findByName(roy.getName());
+//			roy.worksWith(craig);
+//
+//			// We already know that roy works with greg
+//			personRepository.save(roy);
+//
+//			// We already know craig works with roy and greg
+//			log.info("Lookup each person by name...");
+//			team.stream().forEach(person -> log.info(
+//				"\t" + personRepository.findByName(person.getName()).toString()));
+//
+//			List<Person> teammates = personRepository.findByTeammatesName(greg.getName());
+//			log.info("The following have Greg as a teammate...");
+//			teammates.stream().forEach(person -> log.info("\t" + person.getName()));
+		};
+	}
 }

@@ -1,4 +1,4 @@
-package org.springframework.samples.petclinic.follow;
+package org.springframework.samples.petclinic.follow.user;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.samples.petclinic.follow.place.Place;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,22 +18,19 @@ import java.util.stream.Collectors;
 @Setter
 @Node
 public class User {
-
 	@Id
 	@GeneratedValue
 	private Long id;
 
 	// @Property
-	private Integer userid;
-
+	private Long userid;
+	private String name;
 	private String email;
 
-	private String name;
-
-	public User(Integer userid, String email, String name) {
+	public User(Long userid, String name, String email) {
 		this.userid = userid;
-		this.email = email;
 		this.name = name;
+		this.email = email;
 	}
 
 	@Relationship(type = "FOLLOW_USER")
@@ -45,18 +43,26 @@ public class User {
 		users.add(user);
 	}
 
-	public String toString() {
-		return this.name + " follows => "
-				+ Optional.ofNullable(this.users)
-					.orElse(Collections.emptySet())
-					.stream()
-					.map(User::getName)
-					.collect(Collectors.toList());
-	}
+	@Relationship(type = "FOLLOW_PLACE", direction = Relationship.Direction.OUTGOING)
+	//private Set<Place> follows = new HashSet<>();
+	public Set<Place> places;
 
+	public void followWith(Place place) {
+		if (place == null) places = new HashSet<>();
+
+		places.add(place);
+	}
 	/*
 	 * public String getName() { return name; } public void setName(String name) {
 	 * this.name = name; }
 	 */
+	public String toString() {
+		return this.name + " follows => "
+			+ Optional.ofNullable(this.users)
+			.orElse(Collections.emptySet())
+			.stream()
+			.map(User::getName)
+			.collect(Collectors.toList());
+	}
 
 }

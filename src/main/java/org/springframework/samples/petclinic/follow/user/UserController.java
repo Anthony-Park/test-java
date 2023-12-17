@@ -1,11 +1,11 @@
-package org.springframework.samples.petclinic.follow;
+package org.springframework.samples.petclinic.follow.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/follow/users")
@@ -20,7 +20,8 @@ public class UserController {
 	}
 
 	@PostMapping("/new")
-	public Mono<User> createUser(@RequestBody User user) {
+//	public Mono<User> createUser(@RequestBody User user) {
+	public User createUser(@RequestBody User user) {
 		// return userRepository.save(user);
 		return userService.createUser(user);
 	}
@@ -31,7 +32,8 @@ public class UserController {
 	}
 
 	@GetMapping("/{userid}")
-	public Mono<User> getUserByUserid(@PathVariable Integer userid) {
+//	public Mono<User> getUserByUserid(@PathVariable Long userid) { // reactive
+	public User getUserByUserid(@PathVariable Long userid) {
 		System.out.println(userid);
 		return userService.getUserByUserid(userid);
 	}
@@ -47,7 +49,8 @@ public class UserController {
 	}
 
 	@PutMapping("/{userid}")
-	public Mono<User> updateUser(@PathVariable Long userid, @RequestBody User updatedUser) {
+//	public Mono<User> updateUser(@PathVariable Long userid, @RequestBody User updatedUser) {
+	public Optional<User> updateUser(@PathVariable Long userid, @RequestBody User updatedUser) {
 		return userService.updateUser(userid, updatedUser);
 	}
 
