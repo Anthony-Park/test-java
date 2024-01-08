@@ -16,7 +16,7 @@ public class UserService {
 
 	public User findAmud() {
 	//	return userRepository.findOneByName("Tony99").block(); // reactive
-		return userRepository.findOneByName("Tony99");
+		return userRepository.findByName("Tony99");
 	}
 
 //	public Mono<User> createUser(User user) {

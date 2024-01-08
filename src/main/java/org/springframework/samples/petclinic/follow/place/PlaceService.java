@@ -19,21 +19,34 @@ public class PlaceService {
 //		return placeRepository.findOneByName("Tony99").block();
 //	}
 
-	public Mono<Place> createPlace(Place place) {
+//	public Mono<Place> createPlace(Place place) {
+	public Place createPlace(Place place) {
 		return placeRepository.save(place);
 	}
 
-	public Mono<Place> getPlaceByPlaceId(Long placeId) {
-		return placeRepository.findByPlaceid(placeId)
-			.switchIfEmpty(Mono.error(() -> new org.springframework.samples.petclinic.follow.place.NotFoundException("User not found with id: " + placeId)));
+//	public Mono<Place> getPlaceByPlaceId(Long placeId) {
+	public Place getPlaceByPlaceId(Long placeId) {
+//		return placeRepository.findByPlaceid(placeId)
+//			.switchIfEmpty(Mono.error(() -> new org.springframework.samples.petclinic.follow.place.NotFoundException("User not found with id: " + placeId)));
+		return placeRepository.findByPlaceid(placeId);
 	}
 
 	public List<Place> getAllPlaces() {
-		return (List<Place>) placeRepository.findAll();
+		return placeRepository.findAll();
 	}
 
-	public Mono<Place> updatePlace(Long id, Place updatedPlace) {
-		return placeRepository.findById(id);
+//	public Mono<Place> updatePlace(Long id, Place updatedPlace) {
+	public Place updatePlace(Long id, Place updatedPlace) {
+		Place place = placeRepository.findByPlaceid(id);
+		if (place != null) {
+			place.setPlaceid(updatedPlace.getPlaceid());
+			place.setName(updatedPlace.getName());
+			place.setAddress(updatedPlace.getAddress());
+			place.setStartDate(updatedPlace.getStartDate());
+			place.setEndDate(updatedPlace.getEndDate());
+		}
+
+		return place;
 //			.switchIfEmpty(Mono.error(() -> new NotFoundException("Place not found with id: " + id)))
 //			.map(existingPlace -> {
 //				existingPlace.setPlaceid(updatedPlace.getPlaceid());
