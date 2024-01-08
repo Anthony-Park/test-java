@@ -26,6 +26,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
+import org.springframework.samples.petclinic.follow.idol.Idol;
+import org.springframework.samples.petclinic.follow.idol.IdolRepository;
 import org.springframework.samples.petclinic.follow.user.User;
 import org.springframework.samples.petclinic.follow.user.UserRepository;
 
@@ -63,7 +65,7 @@ public class PetClinicApplication {
 	@Bean
 //	@Bean (name = "transactionManager")
 //	@Transactional
-	CommandLineRunner demo(UserRepository userRepository) {
+	CommandLineRunner demo(UserRepository userRepository, IdolRepository idolRepository) {
 		return args -> {
 			userRepository.deleteAll();
 
@@ -76,37 +78,61 @@ public class PetClinicApplication {
 			userRepository.save(sam);
 			userRepository.save(tony);
 
-//			User roy = new Person("Roy");
-//			User craig = new Person("Craig");
-//			List<Person> team = Arrays.asList(greg, roy, craig);
-//
-//			log.info("Before linking up with Neo4j...");
-//
-//			team.stream().forEach(person -> log.info("\t" + person.toString()));
-//
-//			personRepository.save(greg);
-//			personRepository.save(roy);
-//			personRepository.save(craig);
-//
-//			greg = personRepository.findByName(greg.getName());
-//			greg.worksWith(roy);
-//			greg.worksWith(craig);
-//			personRepository.save(greg);
-//
-//			roy = personRepository.findByName(roy.getName());
-//			roy.worksWith(craig);
-//
-//			// We already know that roy works with greg
-//			personRepository.save(roy);
-//
-//			// We already know craig works with roy and greg
-//			log.info("Lookup each person by name...");
-//			team.stream().forEach(person -> log.info(
-//				"\t" + personRepository.findByName(person.getName()).toString()));
-//
-//			List<Person> teammates = personRepository.findByTeammatesName(greg.getName());
-//			log.info("The following have Greg as a teammate...");
-//			teammates.stream().forEach(person -> log.info("\t" + person.getName()));
+			tony = userRepository.findByName(tony.getName());
+			tony.followWith(sam);
+			userRepository.save(tony);
+
+			idolRepository.deleteAll();
+
+			Idol pink = new Idol(9999L, "Black Pink99");
+			Idol bts  = new Idol(9998L, "BTS99");
+
+			List<Idol> idols = Arrays.asList(pink, bts);
+			log.info("Before linking up with Neo4j...");
+			idols.stream().forEach(idol -> log.info("\t" + idol.toString()));
+			idolRepository.save(pink);
+			idolRepository.save(bts );
+
+			pink = idolRepository.findByName(pink.getName());
+			tony.followWith(pink);
+			tony.followWith(bts );
+			sam.followWith(pink);
+
+			userRepository.save(tony);
+			userRepository.save(sam);
+
+/*			User roy = new Person("Roy");
+			User craig = new Person("Craig");
+			List<Person> team = Arrays.asList(greg, roy, craig);
+
+			log.info("Before linking up with Neo4j...");
+
+			team.stream().forEach(person -> log.info("\t" + person.toString()));
+
+			personRepository.save(greg);
+			personRepository.save(roy);
+			personRepository.save(craig);
+
+			greg = personRepository.findByName(greg.getName());
+			greg.worksWith(roy);
+			greg.worksWith(craig);
+			personRepository.save(greg);
+
+			roy = personRepository.findByName(roy.getName());
+			roy.worksWith(craig);
+
+			// We already know that roy works with greg
+			personRepository.save(roy);
+
+			// We already know craig works with roy and greg
+			log.info("Lookup each person by name...");
+			team.stream().forEach(person -> log.info(
+				"\t" + personRepository.findByName(person.getName()).toString()));
+
+			List<Person> teammates = personRepository.findByTeammatesName(greg.getName());
+			log.info("The following have Greg as a teammate...");
+			teammates.stream().forEach(person -> log.info("\t" + person.getName()));
+ */
 		};
 	}
 }
