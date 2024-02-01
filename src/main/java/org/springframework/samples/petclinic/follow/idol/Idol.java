@@ -19,16 +19,16 @@ public class Idol {
 	private Long id;
 
 	// @Property
-	private Long idolid;
+	private Long idolId;
 	private String name;
 
 	public Idol(Long idolId, String name) {
-		this.idolid = idolId;
+		this.idolId = idolId;
 		this.name = name;
 	}
 
 	public String toString() {
-		return this.name + ", " + this.idolid;
+		return this.name + ", " + this.idolId;
 /*		return this.name + this.idolid + " follows => "
 			+ Optional.ofNullable(this.idols)
 			.orElse(Collections.emptySet())
