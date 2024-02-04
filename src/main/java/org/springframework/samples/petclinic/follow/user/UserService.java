@@ -28,7 +28,7 @@ public class UserService {
 	public User getUserByUserid(Long userid) {
 	//	return userRepository.findOneByUserid(userid) // reactive
 	//		.switchIfEmpty(Mono.error(() -> new NotFoundException("User not found with id: " + userid)));
-		return userRepository.findOneByUserid(userid);
+		return userRepository.findOneByUserId(userid);
 	}
 
 	public List<User> getAllUsers() {

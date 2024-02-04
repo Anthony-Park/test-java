@@ -1,9 +1,9 @@
 package org.springframework.samples.petclinic.follow.user;
 
+import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 
-import java.util.List;
 import java.util.Optional;
 /* // non-blocking reactive
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository;
@@ -24,11 +24,14 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
 	User findByName(String name);
 //	User findOneByName(String name);
 
-	User findOneByUserid(Long userid);
+	User findOneByUserId(Long id);
 
 	Optional<User> findById(Long id);
 	// List<User> findByUsersName(String name);
 
-//	List<User> findByTeammatesName(String name);
+	@Query("MATCH (u:User {userId:$id}) - [:FOLLOW_USER] -> (f:User) RETURN COUNT(f)")
+	int getFollowingCount(Long id);
 
+	@Query("MATCH (u:User {userId:$id}) <- [:FOLLOW_USER] - (f:User) RETURN COUNT(f)")
+	int getFollowerCount(Long id);
 }

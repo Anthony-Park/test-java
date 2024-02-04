@@ -101,6 +101,15 @@ public class PetClinicApplication {
 			userRepository.save(tony);
 			userRepository.save(sam);
 
+			Long userId;
+			userId = tony.getUserId();
+			log.info("following {}, follower {}",
+				userRepository.getFollowingCount(userId), userRepository.getFollowerCount(userId));
+
+			userId = sam.getUserId();
+			log.info("following {}, follower {}",
+				userRepository.getFollowingCount(userId), userRepository.getFollowerCount(userId));
+
 /*			User roy = new Person("Roy");
 			User craig = new Person("Craig");
 			List<Person> team = Arrays.asList(greg, roy, craig);

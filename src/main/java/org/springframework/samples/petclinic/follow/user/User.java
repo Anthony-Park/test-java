@@ -24,27 +24,34 @@ public class User {
 	private Long id;
 
 	// @Property
-	private Long userid;
+	private Long userId;
 	private String name;
 	private String email;
 
-	public User(Long userid, String name, String email) {
-		this.userid = userid;
+	public User(Long userId, String name, String email) {
+		this.userId = userId;
 		this.name = name;
 		this.email = email;
 	}
 
-	@Relationship(type = "FOLLOW_USER")
+	@Relationship(type = "FOLLOW_USER") // ,direction = Relationship.Direction.OUTGOING, or INCOMING
 	public Set<User> users;
 
 	public void followWith(User user) {
-		if (user == null) {
+		if (users == null) {
 			users = new HashSet<>();
 		}
 		users.add(user);
 	}
 
-	@Relationship(type = "FOLLOW_IDOL")
+	// get count of following users
+	public int followUserCount() {
+		if (users == null) return 0;
+
+		return users.size();
+	}
+
+	@Relationship(type = "FOLLOW_IDOL") // ,direction = Relationship.Direction.OUTGOING
 	public Set<Idol> idols;
 
 	public void followWith(Idol idol) {
@@ -54,7 +61,7 @@ public class User {
 		idols.add(idol);
 	}
 
-	@Relationship(type = "FOLLOW_PLACE", direction = Relationship.Direction.OUTGOING)
+	@Relationship(type = "FOLLOW_PLACE") // ,direction = Relationship.Direction.OUTGOING
 	//private Set<Place> follows = new HashSet<>();
 	public Set<Place> places;
 
@@ -68,7 +75,7 @@ public class User {
 	 * this.name = name; }
 	 */
 	public String toString() {
-		return this.name + ", " + this.userid + " follows => "
+		return this.name + ", " + this.userId + " follows => "
 			+ Optional.ofNullable(this.users)
 			.orElse(Collections.emptySet())
 			.stream()
