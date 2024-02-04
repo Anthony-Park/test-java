@@ -5,6 +5,7 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.samples.petclinic.follow.user.User;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,7 +16,7 @@ public interface IdolRepository extends Neo4jRepository<Idol, Long> {
 	Idol findByIdolId(Long id);
 
 	Optional<Idol> findById(Long id);
-	// List<User> findByUsersName(String name);
+//	Idol findByName(String name);
 
 	@Query("MATCH (u:Idol {idolId:$id}) - [:FOLLOW_USER] -> (f:User) RETURN COUNT(f)")
 	int getFollowingCount(Long id);
