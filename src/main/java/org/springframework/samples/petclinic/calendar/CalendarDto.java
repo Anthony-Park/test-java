@@ -2,7 +2,6 @@ package org.springframework.samples.petclinic.calendar;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.samples.petclinic.artist.Artist;
 
 import java.util.Date;
 
@@ -11,7 +10,8 @@ import java.util.Date;
 public class CalendarDto {
 
     private Long id; // id (pk)
-    private Artist artist; // artist id (fk)
+//  private Artist artist; // artist id (fk)
+	private Long artistId; // artist id (fk)
 
     private String name; // name
 
