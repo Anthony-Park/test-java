@@ -41,4 +41,8 @@ public class Calendar {
     @Column
     private String link; // external URL
     private String meta; // reserved
+
+	public void setArtist(Artist artist) {
+		this.artist = artist;
+	}
 }

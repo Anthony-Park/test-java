@@ -1,6 +1,8 @@
 package org.springframework.samples.petclinic.calendar;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.samples.petclinic.artist.Artist;
+import org.springframework.samples.petclinic.artist.ArtistRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,18 +14,28 @@ import java.util.Optional;
 public class CalendarService {
 
     private final CalendarRepository calRepository;
+    private final ArtistRepository artistRepository;
 
     @Transactional
     public void create(CalendarDto dto) { // Create
         Calendar calendar = Calendar.builder()
                 .id(dto.getId())
                 .name(dto.getName())
-                .artist(dto.getArtist())
+//	            .artistId(dto.getArtistId())
                 .start(dto.getStart())
                 .end(dto.getEnd())
                 .link(dto.getLink())
                 .meta(dto.getMeta())
                 .build();
+
+		Artist artist; // TODO: avoid using empty idol
+//		Optional<Artist> optionalArtist = artistRepository.findById(dto.getArtistId());
+//		if (optionalArtist.isEmpty())
+//			artist = null;
+//		else
+//			artist = optionalArtist.get();
+//
+//		calendar.setArtist(artist);
 
         calRepository.save(calendar);
     }
@@ -37,9 +49,9 @@ public class CalendarService {
         if (cal.isEmpty()) return false;
 
         Calendar calendar = Calendar.builder()
-        //      .id(dto.getId())
+                .id(dto.getId())
                 .name(dto.getName())
-                .artist(dto.getArtist())
+//              .artist(dto.getArtist())
                 .start(dto.getStart())
                 .end(dto.getEnd())
                 .link(dto.getLink())

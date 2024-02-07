@@ -38,14 +38,15 @@ dependencies {
 //implementation 'org.springframework.data.neo4j.repository'
 //implementation 'org.springframework.data.neo4j.repository.config'
 //implementation 'org.springframework.data.neo4j.repository.support'
-
 //implementation 'org.neo4j.driver:neo4j-java-driver-spring-boot-starter:4.3.6.0'
 //implementation 'org.neo4j.driver:neo4j-java-driver:5.6.0'
-//  implementation 'org.neo4j.driver:neo4j-java-driver'
+//implementation 'org.neo4j.driver:neo4j-java-driver'
 //compileOnly group: 'org.springframework', name: 'spring-tx', version: '5.2.7.RELEASE'
- //   implementation 'org.springframework.transaction.ReactiveTransactionManager'
+//implementation 'org.springframework.transaction.ReactiveTransactionManager'
 
-
+  // swagger, spring doc, tpk
+  implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+//implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui'
 
   // lombok, tpk
   compileOnly 'org.projectlombok:lombok'
