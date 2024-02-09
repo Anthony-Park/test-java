@@ -20,4 +20,14 @@ public class CalendarDto {
 
     private String link; // external link
     private String meta; // meta data
+
+	CalendarDto(Calendar cal) {
+		id = cal.getId();
+		artistId = cal.getArtist().getArtistId();
+		name = cal.getName();
+		start = cal.getStart();
+		end = cal.getEnd();
+		link = cal.getLink();
+		meta = cal.getMeta();
+	}
 }

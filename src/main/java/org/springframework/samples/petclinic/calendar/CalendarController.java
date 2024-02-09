@@ -2,6 +2,8 @@ package org.springframework.samples.petclinic.calendar;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 
@@ -34,7 +38,7 @@ public class CalendarController {
 	@ApiResponse(responseCode = "404", description = "NOT FOUND")
     public ResponseEntity<CalendarResponseDto>  create(
 		@Parameter(description = "Artist ID of creating schedule's owner")
-		@RequestParam(required = true) @PathVariable("artistId") Long artistId,
+		@PathVariable("artistId") Long artistId,
 
     	@Parameter(description = "schedule Data Transfer Object (DTO), id will be ignored")
 		@RequestParam(required = true) @RequestBody CalendarDto calendarDto) {
@@ -55,7 +59,7 @@ public class CalendarController {
 	@ApiResponse(responseCode = "404", description = "NOT FOUND")
     public ResponseEntity<CalendarResponseDto> readWeek(
 		@Parameter(description = "Artist ID of reading schedules' owner")
-		@RequestParam(required = true) @PathVariable("artistId") Long idolId) {
+		@PathVariable("artistId") Long idolId) {
         //return calService.read(calId);
 //    	calService.create(calendarDto); // TODO: modify service & repository
 //      return "calendar is registered";
@@ -105,7 +109,7 @@ public class CalendarController {
 	@ApiResponse(responseCode = "404", description = "NOT FOUND")
 	public ResponseEntity<CalendarResponseDto> readWeekFrom(
 		@Parameter(description = "Artist ID of reading schedules' owner")
-		@RequestParam(required = true) @PathVariable("artistId") Long idolId,
+		@PathVariable("artistId") Long idolId,
 
 		@Parameter(description = "Start date of a week schedules")
 		@RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate startDate) {
@@ -130,7 +134,7 @@ public class CalendarController {
 
 	public ResponseEntity<CalendarResponseDto> readMonthFrom(
 		@Parameter(description = "Artist ID of reading schedules' owner")
-		@RequestParam(required = true) @PathVariable("artistId") Long idolId,
+		@PathVariable("artistId") Long idolId,
 
 		@Parameter(description = "Start date of a month schedules")
 		@RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate startDate) {
@@ -147,21 +151,59 @@ public class CalendarController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+//	@ApiResponses(value = {
+//		@ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = CalendarResponseDto.class))),
+//		@ApiResponse(responseCode = "404", description = "존재하지 않는 리소스 접근", content = @Content(schema = @Schema(implementation = CalendarResponseDto.class))) })
+//	@Operation(summary = "게시글 조회", description = "id를 이용하여 posts 레코드를 조회합니다.")
+
+	@Operation(summary = "게시글 조회", description = "id를 이용하여 posts 레코드를 조회합니다.", responses = {
+		@ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = CalendarResponseDto.class))),
+		@ApiResponse(responseCode = "404", description = "존재하지 않는 리소스 접근", content = @Content(schema = @Schema(implementation = CalendarDto.class)))
+	})
 	@GetMapping("/plans/{planId}") // Read
-	@Operation(summary = "Read a schedule", description = "Read a detail schedule")
-	@ApiResponse(responseCode = "200", description = "OK")
-	@ApiResponse(responseCode = "404", description = "NOT FOUND")
+//	@Operation(summary = "Read a schedule", description = "Read a detail schedule")
+//	@ApiResponse(responseCode = "200", description = "OK")
+//	@ApiResponse(responseCode = "404", description = "NOT FOUND")
+//	@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = CalendarResponseDto.class)))
+//	@ApiResponses(value = {
+//		@ApiResponse(responseCode = "200", description = "Okay, requested schedule found", useReturnTypeSchema = true),
+//		@ApiResponse(responseCode = "404", description = "schedule Not Found, invalid plan id",
+//			content = @Content(schema = @Schema(implementation = CalendarResponseDto.class)))
+//	})
 	public ResponseEntity<CalendarResponseDto> readPlan(
 		@Parameter(description = "Plan(Schedule) ID of schedule")
-		@RequestParam(required = true) @PathVariable("planId") Long planId) {
-		//return calService.read(calId);
+		@PathVariable("planId") Long planId) {
+
+    	System.out.println("PlanId " + planId);
+		CalendarResponseDto response = new CalendarResponseDto();
+		System.out.println("DTO created");
+
+		Optional<Calendar> optPlan = calService.read(planId);
 //    	calService.create(calendarDto); // TODO: modify service & repository
 //      return "calendar is registered";
-		CalendarResponseDto response = new CalendarResponseDto(); // TODO: fill in response
-		if (false) // TODO: check input
-			return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		if (optPlan.isPresent()) {
+			System.out.println("Plan exist");
+			CalendarDto calDto = new CalendarDto(optPlan.get());
+			response = CalendarResponseDto.builder()
+				.statusCode(HttpStatus.OK.value())
+				.code(HttpStatus.OK) // TODO: choice one
+				.message("사용자 조회 성공")
+				.plans(Arrays.asList(calDto))
+				.planCount(1).build();
+
+		} else {
+			System.out.println("Plan isn't exist");
+			response = CalendarResponseDto.builder()
+//				.code(HttpStatus.NOT_FOUND.value())
+				.code(HttpStatus.NOT_FOUND)
+				.message("사용자를 찾을 수 없습니다.")
+				.plans(Collections.emptyList())
+				.planCount(0).build();
+
+		}
+
+		return new ResponseEntity<>(response, response.getCode());
 	}
 
 //    @GetMapping("/date") // temp.
