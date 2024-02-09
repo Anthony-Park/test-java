@@ -40,8 +40,14 @@ public class CalendarService {
         calRepository.save(calendar);
     }
 
-    public Optional<Calendar> read(Long calId) { // Read
-        return calRepository.findById(calId);
+    public Optional<Calendar> read(Long calId) // Read
+	{
+//		Optional<Calendar> cal = calRepository.findById(calId);
+		Long c = calRepository.count();
+		System.out.println("Repo Count " + c);
+
+
+		return calRepository.findById(calId);
     }
 
     public Boolean update(Long calId, CalendarDto dto) { // Update

@@ -35,7 +35,7 @@ public class Calendar {
     private Date start; // start date, time
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "end", nullable = false)
+    @Column(name = "end1", nullable = false)
     private Date end;
 
     @Column
