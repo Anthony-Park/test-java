@@ -20,7 +20,9 @@ import java.util.Date;
 public class Calendar {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY) // SEQUENCE for H2, IDENTITY for MySQL
+//	@SequenceGenerator(name= "CALENDAR_SEQUENCE", sequenceName = "CALENDAR_SEQUENCE_ID", initialValue=2, allocationSize = 1)
+//	@GeneratedValue(strategy=GenerationType.AUTO, generator="CALENDAR_SEQUENCE")
     private Long id;
 
     @ManyToOne // artist could have many scheduled events
@@ -35,7 +37,7 @@ public class Calendar {
     private Date start; // start date, time
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "end1", nullable = false)
+    @Column(name = "ended", nullable = false)
     private Date end;
 
     @Column
