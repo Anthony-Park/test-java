@@ -17,27 +17,23 @@ public class CalendarService {
     private final ArtistRepository artistRepository;
 
     @Transactional
-    public void create(CalendarDto dto) { // Create
-        Calendar calendar = Calendar.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-//	            .artistId(dto.getArtistId())
-                .start(dto.getStart())
-                .end(dto.getEnd())
-                .link(dto.getLink())
-                .meta(dto.getMeta())
-                .build();
+    public Optional<Calendar> create(CalendarDto dto) { // Create
+		System.out.println("artRepo calling");
+    	Optional<Artist> optArtist = artistRepository.findById(dto.getArtistId());
+    	if (optArtist.isEmpty()) return null; // failed
+		System.out.println("artRepo called");
 
-		Artist artist; // TODO: avoid using empty idol
-//		Optional<Artist> optionalArtist = artistRepository.findById(dto.getArtistId());
-//		if (optionalArtist.isEmpty())
-//			artist = null;
-//		else
-//			artist = optionalArtist.get();
-//
-//		calendar.setArtist(artist);
+		Calendar calendar = Calendar.builder()
+				.id(dto.getId()) //ignore
+				.name(dto.getName())
+				.artist(optArtist.get())
+				.start(dto.getStart()).end(dto.getEnd())
+				.link(dto.getLink()).meta(dto.getMeta()).build();
+		System.out.println("calendar built");
 
-        calRepository.save(calendar);
+		System.out.println("calRepo calling");
+//		calendar.getId()
+        return Optional.of(calRepository.save(calendar));
     }
 
     public Optional<Calendar> read(Long calId) // Read
@@ -51,19 +47,26 @@ public class CalendarService {
     }
 
     public Boolean update(Long calId, CalendarDto dto) { // Update
-        Optional<Calendar> cal = calRepository.findById(calId);
-        if (cal.isEmpty()) return false;
+        Optional<Calendar> optCal = calRepository.findById(calId);
+        if (optCal.isEmpty()) return false;
+        System.out.printf("findById %d\n", calId);
+        Calendar cal = optCal.get();
+
+        if (dto.getArtistId() != cal.getArtist().getArtistId()
+			) return false; // calId != cal.getId() checked by findById()
 
         Calendar calendar = Calendar.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-//              .artist(dto.getArtist())
+                .id(calId) 				 // use calId not dto's id
+				.artist(cal.getArtist()) // reuse original artist
+                .name(dto.getName())	 // next items can be modified
                 .start(dto.getStart())
                 .end(dto.getEnd())
                 .link(dto.getLink())
                 .meta(dto.getMeta())
                 .build();
+		System.out.printf("Calendar builder %d\n", dto.getId());
         calRepository.save(calendar);
+		System.out.printf("Calendar Repo saved\n");
         return true;
     }
 
