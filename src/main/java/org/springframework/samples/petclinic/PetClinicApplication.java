@@ -26,10 +26,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
+import org.springframework.samples.petclinic.follow.FollowService;
 import org.springframework.samples.petclinic.follow.idol.Idol;
 import org.springframework.samples.petclinic.follow.idol.IdolRepository;
 import org.springframework.samples.petclinic.follow.user.User;
 import org.springframework.samples.petclinic.follow.user.UserRepository;
+//import org.springframework.samples.petclinic.follow.FollowService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -65,50 +67,79 @@ public class PetClinicApplication {
 	@Bean
 //	@Bean (name = "transactionManager")
 //	@Transactional
-	CommandLineRunner demo(UserRepository userRepository, IdolRepository idolRepository) {
+	CommandLineRunner demo(UserRepository userRepository, IdolRepository idolRepository, FollowService follow) {
 		return args -> {
-			userRepository.deleteAll();
+			int step = 2;
+		//	userRepository.deleteAll();
+			follow.deleteAll();
 
-			User sam  = new User(9999L, "Sam99", "sam99@g-mail.com");
-			User tony = new User(9998L, "Tony99", "tony99@g-mail.com");
+			if (step == 1) {
+				User sam = new User(9999L, "Sam99", "sam99@g-mail.com");
+				User tony = new User(9998L, "Tony99", "tony99@g-mail.com");
 
-			List<User> team = Arrays.asList(sam, tony);
-			log.info("Before linking up with Neo4j...");
-			team.stream().forEach(user -> log.info("\t" + user.toString()));
-			userRepository.save(sam);
-			userRepository.save(tony);
+				List<User> team = Arrays.asList(sam, tony);
+				log.info("Before linking up with Neo4j...");
+				team.stream().forEach(user -> log.info("\t" + user.toString()));
+				userRepository.save(sam);
+				userRepository.save(tony);
 
-			tony = userRepository.findByName(tony.getName());
-			tony.followWith(sam);
-			userRepository.save(tony);
+				tony = userRepository.findByName(tony.getName());
+				tony.followWith(sam);
+				userRepository.save(tony);
 
-			idolRepository.deleteAll();
+				idolRepository.deleteAll();
 
-			Idol pink = new Idol(9999L, "Black Pink99");
-			Idol bts  = new Idol(9998L, "BTS99");
+				Idol pink = new Idol(9999L, "Black Pink99", true, true);
+				Idol bts = new Idol(9998L, "BTS99", true, false);
 
-			List<Idol> idols = Arrays.asList(pink, bts);
-			log.info("Before linking up with Neo4j...");
-			idols.stream().forEach(idol -> log.info("\t" + idol.toString()));
-			idolRepository.save(pink);
-			idolRepository.save(bts );
+				List<Idol> idols = Arrays.asList(pink, bts);
+				log.info("Before linking up with Neo4j...");
+				idols.stream().forEach(idol -> log.info("\t" + idol.toString()));
+				idolRepository.save(pink);
+				idolRepository.save(bts);
 
-			pink = idolRepository.findByName(pink.getName());
-			tony.followWith(pink);
-			tony.followWith(bts );
-			sam.followWith(pink);
+				pink = idolRepository.findByName(pink.getName());
+				tony.followWith(pink);
+				tony.followWith(bts);
+				sam.followWith(pink);
 
-			userRepository.save(tony);
-			userRepository.save(sam);
+				userRepository.save(tony);
+				userRepository.save(sam);
 
-			Long userId;
-			userId = tony.getUserId();
-			log.info("following {}, follower {}",
-				userRepository.getFollowingCount(userId), userRepository.getFollowerCount(userId));
+				Long userId;
+				userId = tony.getUserId();
+				log.info("following {}, follower {}",
+					userRepository.getFollowingCount(userId), userRepository.getFollowerCount(userId));
 
-			userId = sam.getUserId();
-			log.info("following {}, follower {}",
-				userRepository.getFollowingCount(userId), userRepository.getFollowerCount(userId));
+				userId = sam.getUserId();
+				log.info("following {}, follower {}",
+					userRepository.getFollowingCount(userId), userRepository.getFollowerCount(userId));
+			}
+
+			if (step == 2) {
+//			FollowService follow;
+				follow.addUser(9999L, "Tony99", "tony99@g-mail.com");
+				follow.addUser(9998L, "Sam98", "sam99@g-mail.com");
+//				follow.addUser(9997L, "Sun97", "sun97@g-mail.com");
+
+				follow.addIdol(9999L, "Black Pink99", true, true);
+				follow.addIdol(9998L, "BTS98", true, false);
+
+				follow.followIdol(9999L, 9999L); // Tony99 follows Black Pink99
+				follow.followIdol(9998L, 9999L); // Sam99 follows Black Pink99
+				follow.followIdol(9998L, 9998L); // Sam99 follows BTS98
+
+				follow.addPlace(9999L, "Popup99", "Seoul", 9998L);
+				follow.followPlace(9999L, 9999L); // Tony99 follows Popup99
+				follow.followPlace(9998L, 9999L); // Sam99 follows Popup99
+
+				follow.addItem(9999L,"Picture99", 1, 9998L, 9999L);
+				follow.followItem(9998L, 9999L); // Sam99 follows Picture99
+
+				follow.addMeet(9999L, "FanMeet99", 9999L, 9999L);
+				follow.followMeet(9999L, 9999L); // Tony99 follows FanMeet99
+				follow.followMeet(9998L, 9999L); // Sam99 follows FanMeet99
+			}
 
 /*			User roy = new Person("Roy");
 			User craig = new Person("Craig");

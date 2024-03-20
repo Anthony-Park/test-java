@@ -1,4 +1,6 @@
 package org.springframework.samples.petclinic;
+
+/*
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.springdoc.core.models.GroupedOpenApi;
@@ -17,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-/*
+
 @OpenAPIDefinition(
 	info = @Info(title = "Couple App",
 		description = "couple app api명세",
@@ -37,10 +39,11 @@ public class SwaggerConfig {
 	}
 }
 */
+/*
 //@EnableSwagger2
 //@Configuration
 public class Swagger2Config {
-/*	@Bean
+	@Bean
 	public GroupedOpenApi publicApi() {
 		return GroupedOpenApi.builder()
 			.group("v1-definition")
@@ -53,8 +56,8 @@ public class Swagger2Config {
 			.info(title("Bstagram API")
 			.description("BMW 프로젝트 API 명세서입니다.")
 			.version("v0.0.1");
-	} */
-/*	@Bean
+	}
+	@Bean
 	public Docket api() {
 		return new Docket(DocumentationType.SWAGGER_2)
 			.apiInfo(apiInfo())
@@ -70,5 +73,6 @@ public class Swagger2Config {
 			.version("1.0")
 			.description("movie & sns project apis")
 			.build();
-	} */
+	}
 }
+*/

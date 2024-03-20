@@ -15,21 +15,21 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Schema(name = "Calendar Common Response", description = "Calendar Common ResponseBody")
+@Schema(description = "Calendar Common ResponseBody") // not using "name =" field
 public class CalendarResponse {
 
-	@Schema(name = "Success or not", example = "1, 0", description = "Success(1), Fail(0)")
+	@Schema(example = "1, 0", description = "Success(1) or not(0)")
 	public Boolean success;
 //	@JsonValue
-	@Schema(name = "Http status", example = "200", description = "Http Status Code in number")
+	@Schema(example = "200", description = "Http Status Code in number")
 	public Integer statusCode;
-	@Schema(name = "Response Message", example = "Query Operation Success", description = "Text message for each response result")
+	@Schema(example = "Query Operation Success", description = "Text message for each response result")
 	public String message;
 
-	@Schema(name = "Response count", example = "0, 1 or many", description = "Number of records for response body's Calendar DTO")
+	@Schema(example = "0, 1 or many", description = "Number of records for response body's Calendar DTO")
 	private Integer planCount;
 //	@Schema(name = "Array of Calendar DTOs", example = "{100, 1, 'BTS', '2021/12/24 23:59:59', '2021/12/25 00:00:01', 'http:christmas', 'nothing'", description = "array of Calendar DTO")
-	@Schema(name = "Array of Calendar DTOs", description = "array of Calendar DTO")
+	@Schema(description = "array of Calendar DTO")
 	private List<CalendarDto> plans;
 //		Long id;		// id (pk)
 //		Long artistId;	// artist id (fk)

@@ -14,25 +14,29 @@ import java.util.Date;
 public class Place {
 	@Id
 	private Long id;
-	private Long placeid;
+	private Long placeId;
 
 	private String name;
 
-	private String address;
-	// private Double latitude;
-	// private Double longitude;
+	private String address; // post number
+//	private String placeName;
+//	private Double latitude;
+//	private Double longitude;
 
-	// private String placeName;
-	private Date startDate;
-	private Date endDate;
+	private Long idolId;
 
-	public Place(Long id, String name, String address, Date startDate, Date endDate) {
-		this.placeid = id;
+//	private Date startDate;
+//	private Date endDate;
+
+	public Place(Long id, String name, String address, Long idolId) {
+		this.placeId = id;
 
 		this.name = name;
 		this.address = address;
 
-		this.startDate = startDate;
-		this.endDate = endDate;
+		this.idolId	= idolId;
+
+//		this.startDate = startDate;
+//		this.endDate = endDate;
 	}
 }

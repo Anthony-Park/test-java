@@ -77,4 +77,16 @@ CREATE TABLE agency (
  */
 INSERT INTO agency VALUES (1, 'hive');
 INSERT INTO artist VALUES (1, 1, 'BTS', 'BTS is great', 'image.jpg', 100);
-INSERT INTO calendar VALUES (1, 1, 'BTS-A Meeting', '2024-02-09 12:30:00', '2024-02-09 14:45:00', 'http://www.sbs.co.kr', '');
+--INSERT INTO calendar VALUES (1, 1, 'BTS-A Meeting', '2024-02-12 12:30:00', '2024-02-14 14:45:00', 'http://www.sbs.co.kr', '');
+--INSERT INTO calendar VALUES (100, 1, 'BTS-A Meeting', '2024-02-09 12:30:00', '2024-02-09 14:45:00', 'http://www.sbs.co.kr', '');
+/*
+INSERT INTO calendar VALUES (1, 1, 'BTS-A Meeting', '2024-01-31 12:30:00', '2024-01-31 14:45:00', 'http://www.sbs.co.kr', '');
+INSERT INTO calendar VALUES (2, 1, 'BTS-B Meeting', '2024-02-01 12:30:00', '2024-02-01 14:45:00', 'http://www.sbs.co.kr', '');
+INSERT INTO calendar VALUES (3, 1, 'BTS-C Meeting', '2024-02-13 12:30:00', '2024-02-13 14:45:00', 'http://www.sbs.co.kr', '');
+INSERT INTO calendar VALUES (4, 1, 'BTS-C Meeting', '2024-02-14 12:30:00', '2024-02-14 14:45:00', 'http://www.sbs.co.kr', '');
+INSERT INTO calendar VALUES (5, 1, 'BTS-C Meeting', '2024-02-15 12:30:00', '2024-02-15 14:45:00', 'http://www.sbs.co.kr', '');
+INSERT INTO calendar VALUES (6, 1, 'BTS-C Meeting', '2024-02-16 12:30:00', '2024-02-16 14:45:00', 'http://www.sbs.co.kr', '');
+INSERT INTO calendar VALUES (7, 1, 'BTS-C Meeting', '2024-02-17 12:30:00', '2024-02-17 14:45:00', 'http://www.sbs.co.kr', '');
+INSERT INTO calendar VALUES (8, 1, 'BTS-E Meeting', '2024-02-29 12:30:00', '2024-02-29 14:45:00', 'http://www.sbs.co.kr', '');
+INSERT INTO calendar VALUES (9, 1, 'BTS-F Meeting', '2024-03-01 12:30:00', '2024-03-02 14:45:00', 'http://www.sbs.co.kr', '');
+*/

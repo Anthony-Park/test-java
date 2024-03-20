@@ -34,4 +34,16 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
 
 	@Query("MATCH (u:User {userId:$id}) <- [:FOLLOW_USER] - (f:User) RETURN COUNT(f)")
 	int getFollowerCount(Long id);
+
+	@Query(	"MATCH (u:User {userId:$id}), (i:Item {itemId:$itemId}) " + //WHERE a.name = ""Shikar Dhawan"" AND b.name = ""India" +
+			"CREATE (u)-[r:FOLLOW_ITME]->(i)")
+	void followItem(Long id, Long itemId);
+
+	@Query(	"MATCH (u:User {userId:$userId}), (f:Place {placeId:$placeId}) " +
+			"CREATE (u)-[r:FOLLOW_PLACE]->(f)")
+	void followPlace(Long userId, Long placeId);
+
+	@Query(	"MATCH (u:User {userId:$userId}), (f:Meet {meetId:$meetId}) " +
+			"CREATE (u)-[r:FOLLOW_MEET]->(f)")
+	void followMeet(Long userId, Long meetId);
 }
