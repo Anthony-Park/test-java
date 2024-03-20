@@ -1,4 +1,4 @@
-package org.springframework.samples.petclinic.calendar;
+package org.springframework.samples.petclinic.follow;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,18 +10,39 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.samples.petclinic.calendar.Calendar;
+import org.springframework.samples.petclinic.calendar.CalendarDto;
+import org.springframework.samples.petclinic.calendar.CalendarResponse;
+import org.springframework.samples.petclinic.calendar.CalendarService;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.*;
 
-@RequestMapping("/v1/calendar")
+/*
+HTTP GET /v1/follow/users/:userid/users param?=num  Count, List(num)
+HTTP GET /v1/follow/users/:userid/users/:followid   Boolean
+
+HTTP GET /v1/follow/users/:userid/idols param?=num  Count, List(num)
+HTTP GET /v1/follow/users/:userid/idols/:idolid     Boolean
+
+HTTP GET /v1/follow/users/:userid/items param?=num  Count, List(num)
+HTTP GET /v1/follow/users/:userid/items/:itemid     Boolean
+
+//HTTP GET /v1/follower/users/:userid param?=num    Count, List(num)
+HTTP GET /v1/follower/users/:userid/advice3         Count, List(num)
+
+//HTTP GET /v1/follower/idols/:userid param?=num    Count, List(num)
+HTTP GET /v1/follower/idols/:userid/advice3         Count, List(num)
+*/
+/*
+@RequestMapping("/v1/follow")
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Calendar", description = "Artists' schedule CRUD service")
-public class CalendarController {
+public class FollowController {
 
-    private final CalendarService calService;
+    private final FollowService followService;
 
     @PostMapping("/artists/{artistId}") // Create
 	@Operation(summary = "Create a schedule", description = "Register a schedule of an artist")
@@ -37,13 +58,13 @@ public class CalendarController {
 
 		calendarDto.setArtistId(artistId);
 		System.out.printf("ctrl %s\n", calendarDto.getName());
-		Optional<Calendar> optCal = calService.create(calendarDto);
+		Optional<org.springframework.samples.petclinic.calendar.Calendar> optCal = calService.create(calendarDto);
 //		System.out.println("Update Failed");
 
 		CalendarResponse response;
 		HttpStatus httpStatus;
 		if (optCal.isPresent()) {
-			Calendar cal = optCal.get();
+			org.springframework.samples.petclinic.calendar.Calendar cal = optCal.get();
 			CalendarDto dto = new CalendarDto(cal);
 
 			httpStatus = HttpStatus.OK;
@@ -83,10 +104,10 @@ public class CalendarController {
 
 		CalendarResponse response;
 		HttpStatus httpStatus;
-		List<Calendar> list = calService.readFromTo(idolId, monday, sunday);
+		List<org.springframework.samples.petclinic.calendar.Calendar> list = calService.readFromTo(idolId, monday, sunday);
 		if (list.size() > 0) {
 			List<CalendarDto> dtoArray = new ArrayList<>();
-			for (Calendar cal : list)
+			for (org.springframework.samples.petclinic.calendar.Calendar cal : list)
 				dtoArray.add(new CalendarDto(cal));
 
 			httpStatus = HttpStatus.OK;
@@ -126,10 +147,10 @@ public class CalendarController {
 
 		CalendarResponse response;
 		HttpStatus httpStatus;
-		List<Calendar> list = calService.readFromTo(idolId, firstday, last_day);
+		List<org.springframework.samples.petclinic.calendar.Calendar> list = calService.readFromTo(idolId, firstday, last_day);
 		if (list.size() > 0) {
 			List<CalendarDto> dtoArray = new ArrayList<>();
-			for (Calendar cal : list)
+			for (org.springframework.samples.petclinic.calendar.Calendar cal : list)
 				dtoArray.add(new CalendarDto(cal));
 
 			httpStatus = HttpStatus.OK;
@@ -171,10 +192,10 @@ public class CalendarController {
 
 		CalendarResponse response;
 		HttpStatus httpStatus;
-		List<Calendar> list = calService.readFromTo(idolId, monday, sunday);
+		List<org.springframework.samples.petclinic.calendar.Calendar> list = calService.readFromTo(idolId, monday, sunday);
 		if (list.size() > 0) {
 			List<CalendarDto> dtoArray = new ArrayList<>();
-			for (Calendar cal : list)
+			for (org.springframework.samples.petclinic.calendar.Calendar cal : list)
 				dtoArray.add(new CalendarDto(cal));
 
 			httpStatus = HttpStatus.OK;
@@ -216,10 +237,10 @@ public class CalendarController {
 
 		CalendarResponse response;
 		HttpStatus httpStatus;
-		List<Calendar> list = calService.readFromTo(idolId, firstday, last_day);
+		List<org.springframework.samples.petclinic.calendar.Calendar> list = calService.readFromTo(idolId, firstday, last_day);
 		if (list.size() > 0) {
 			List<CalendarDto> dtoArray = new ArrayList<>();
-			for (Calendar cal : list)
+			for (org.springframework.samples.petclinic.calendar.Calendar cal : list)
 				dtoArray.add(new CalendarDto(cal));
 
 			httpStatus = HttpStatus.OK;
@@ -253,7 +274,7 @@ public class CalendarController {
 
 		CalendarResponse response;
 		HttpStatus httpStatus;
-		Optional<Calendar> optPlan = calService.read(planId);
+		Optional<org.springframework.samples.petclinic.calendar.Calendar> optPlan = calService.read(planId);
 		if (optPlan.isPresent()) {
 			CalendarDto calDto = new CalendarDto(optPlan.get());
 
@@ -364,3 +385,4 @@ public class CalendarController {
 		return new ResponseEntity<>(response, httpStatus);
 	}
 }
+*/

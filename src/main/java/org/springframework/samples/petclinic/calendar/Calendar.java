@@ -1,18 +1,13 @@
 package org.springframework.samples.petclinic.calendar;
+
 import org.springframework.samples.petclinic.artist.Artist;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
-
-//import javax.persistence.*;
+import lombok.*;
 import java.util.Date;
 
 @Entity
-//@Data // -> @Getter + @Setter
-@Getter
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

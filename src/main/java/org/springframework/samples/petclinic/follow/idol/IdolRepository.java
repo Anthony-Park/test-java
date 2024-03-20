@@ -14,6 +14,7 @@ public interface IdolRepository extends Neo4jRepository<Idol, Long> {
 	Idol findByName(String name);
 
 	Idol findByIdolId(Long id);
+	Idol findOneByIdolId(Long id);
 
 	Optional<Idol> findById(Long id);
 //	Idol findByName(String name);

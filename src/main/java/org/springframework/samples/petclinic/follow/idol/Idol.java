@@ -18,13 +18,19 @@ public class Idol {
 	@GeneratedValue
 	private Long id;
 
-	// @Property
+//	@Property
 	private Long idolId;
 	private String name;
 
-	public Idol(Long idolId, String name) {
+	private Boolean unit;
+	private Boolean gender;
+//	private int agency;
+
+	public Idol(Long idolId, String name, Boolean unit, Boolean gender) {
 		this.idolId = idolId;
 		this.name = name;
+		this.unit = unit;
+		this.gender = gender;
 	}
 
 	public String toString() {

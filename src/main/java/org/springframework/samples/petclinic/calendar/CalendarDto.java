@@ -11,26 +11,26 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@Schema(name = "Calendar Record", description = "Calendar Common Data Transfer Object(DTO)")
+@Schema(description = "Calendar Common Data Transfer Object(DTO)") // not using "name=" field
 public class CalendarDto {
 
-	@Schema(name = "calendar Id", example = "100", description = "unique primary key number for Calendar table")
+	@Schema(example = "100", description = "unique primary key number for Calendar table")
     private Long id;
-	@Schema(name = "artist Id", example = "100", description = "unique foreign key number by Artist table")
+	@Schema(example = "100", description = "unique foreign key number by Artist table")
 //  private Artist artist; // artist id (fk)
 	private Long artistId;
 
-	@Schema(name = "Schedule Name", example = "Fan Meeting", description = "Record and scheudle name")
+	@Schema(example = "Fan Meeting", description = "Schedule's name")
     private String name;
 
-	@Schema(name = "Start Date", example = "2021/12/24 23:59:59", description = "Start of schedule including date & time")
+	@Schema(example = "2021/12/24 23:59:59", description = "Start of schedule including date & time")
     private Date start;
-	@Schema(name = "End Date", example = "2021/12/25 00:00:01", description = "Start of schedule including date & time")
+	@Schema(example = "2021/12/25 00:00:01", description = "Start of schedule including date & time")
     private Date end;
 
-	@Schema(name = "External Link", example = "http://christmas.org", description = "link string for schedule")
+	@Schema(example = "http://christmas.org", description = "external link string for schedule")
     private String link;
-	@Schema(name = "meta data", example = "nothing", description = "reserved for expansion")
+	@Schema(example = "nothing", description = "meta data, reserved for expansion")
     private String meta;
 
 	CalendarDto(Calendar cal) {

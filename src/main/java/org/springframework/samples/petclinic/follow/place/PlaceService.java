@@ -28,7 +28,7 @@ public class PlaceService {
 	public Place getPlaceByPlaceId(Long placeId) {
 //		return placeRepository.findByPlaceid(placeId)
 //			.switchIfEmpty(Mono.error(() -> new org.springframework.samples.petclinic.follow.place.NotFoundException("User not found with id: " + placeId)));
-		return placeRepository.findByPlaceid(placeId);
+		return placeRepository.findByPlaceId(placeId);
 	}
 
 	public List<Place> getAllPlaces() {
@@ -37,13 +37,13 @@ public class PlaceService {
 
 //	public Mono<Place> updatePlace(Long id, Place updatedPlace) {
 	public Place updatePlace(Long id, Place updatedPlace) {
-		Place place = placeRepository.findByPlaceid(id);
+		Place place = placeRepository.findByPlaceId(id);
 		if (place != null) {
-			place.setPlaceid(updatedPlace.getPlaceid());
+			place.setPlaceId(updatedPlace.getPlaceId());
 			place.setName(updatedPlace.getName());
 			place.setAddress(updatedPlace.getAddress());
-			place.setStartDate(updatedPlace.getStartDate());
-			place.setEndDate(updatedPlace.getEndDate());
+		//	place.setStartDate(updatedPlace.getStartDate());
+		//	place.setEndDate(updatedPlace.getEndDate());
 		}
 
 		return place;
@@ -57,7 +57,7 @@ public class PlaceService {
 	}
 
 	public void deletePlace(Long placeId) {
-		placeRepository.deleteByPlaceid(placeId);
+		placeRepository.deleteByPlaceId(placeId);
 	}
 
 }
