@@ -2,387 +2,510 @@ package org.springframework.samples.petclinic.follow;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.samples.petclinic.calendar.Calendar;
-import org.springframework.samples.petclinic.calendar.CalendarDto;
-import org.springframework.samples.petclinic.calendar.CalendarResponse;
-import org.springframework.samples.petclinic.calendar.CalendarService;
+import org.springframework.samples.petclinic.PetClinicApplication;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.*;
 
-/*
-HTTP GET /v1/follow/users/:userid/users param?=num  Count, List(num)
-HTTP GET /v1/follow/users/:userid/users/:followid   Boolean
-
-HTTP GET /v1/follow/users/:userid/idols param?=num  Count, List(num)
-HTTP GET /v1/follow/users/:userid/idols/:idolid     Boolean
-
-HTTP GET /v1/follow/users/:userid/items param?=num  Count, List(num)
-HTTP GET /v1/follow/users/:userid/items/:itemid     Boolean
-
-//HTTP GET /v1/follower/users/:userid param?=num    Count, List(num)
-HTTP GET /v1/follower/users/:userid/advice3         Count, List(num)
-
-//HTTP GET /v1/follower/idols/:userid param?=num    Count, List(num)
-HTTP GET /v1/follower/idols/:userid/advice3         Count, List(num)
-*/
-/*
 @RequestMapping("/v1/follow")
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Calendar", description = "Artists' schedule CRUD service")
+@Tag(name = "Follow", description = "Follow service for user, idol/artist, item/goods, meet/socialing, place")
 public class FollowController {
 
     private final FollowService followService;
 
-    @PostMapping("/artists/{artistId}") // Create
-	@Operation(summary = "Create a schedule", description = "Register a schedule of an artist")
-	@ApiResponse(responseCode = "201", description = "CREATED",					content = @Content(schema = @Schema(implementation = CalendarResponse.class)))
-	@ApiResponse(responseCode = "404", description = "NOT FOUND",				content = @Content(schema = @Schema(implementation = CalendarResponse.class)))
-	@ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR",	content = @Content(schema = @Schema(implementation = CalendarResponse.class)))
-    public ResponseEntity<CalendarResponse>  create(
-		@Parameter(description = "Artist ID of creating schedule's owner")
-		@PathVariable("artistId") Long artistId,
+	private final static Logger log = LoggerFactory.getLogger(PetClinicApplication.class); // TODO remove it
 
-		@Parameter(name = "calendarDto", description = "schedule Data Transfer Object (DTO), id will be ignored")
-		@RequestBody CalendarDto calendarDto) {
+	private ResponseEntity<FollowResponse> responseIdList(List<Long> idList, int size) {
+		return responseIdList(idList, size, false);
+	}
 
-		calendarDto.setArtistId(artistId);
-		System.out.printf("ctrl %s\n", calendarDto.getName());
-		Optional<org.springframework.samples.petclinic.calendar.Calendar> optCal = calService.create(calendarDto);
-//		System.out.println("Update Failed");
-
-		CalendarResponse response;
+	private ResponseEntity<FollowResponse> responseIdList(List<Long> idList, int size, boolean override) {
+		FollowResponse response;
 		HttpStatus httpStatus;
-		if (optCal.isPresent()) {
-			org.springframework.samples.petclinic.calendar.Calendar cal = optCal.get();
-			CalendarDto dto = new CalendarDto(cal);
+
+		int totalSize = idList.size();
+		if (totalSize > 0 || override) {
+			// found ids
+			while (idList.size() > size) // reduce size of list as api param.
+				idList.remove(idList.size() -1);
 
 			httpStatus = HttpStatus.OK;
-			response = CalendarResponse.builder()
+			response = FollowResponse.builder()
 				.success(true)
 				.statusCode(httpStatus.value())
 				.message("조회 성공")
-				.plans(Arrays.asList(new CalendarDto(optCal.get())))
-				.planCount(1).build();
+				.totalSize(totalSize)
+				.IDs(idList)
+				.responseCount(idList.size()).build();
 		} else {
-
-			httpStatus = HttpStatus.NOT_FOUND;
-			response = CalendarResponse.builder()
-				.success(false)
-				.statusCode(httpStatus.value())
-				.message("요청한 항목을 찾을 수 없습니다.")
-				.plans(Collections.emptyList())
-				.planCount(0).build();
-		}
-
-		return new ResponseEntity<>(response, httpStatus);
-    }
-
-	@GetMapping("/artists/{artistId}/week") // Read
-	@Operation(summary = "Read this week's schedule", description = "Read this week's schedules of an artist")
-	@ApiResponse(responseCode = "200", description = "OK")
-	@ApiResponse(responseCode = "204", description = "NO CONTENT")
-	@ApiResponse(responseCode = "404", description = "NOT FOUND")
-    public ResponseEntity<CalendarResponse> readWeek(
-		@Parameter(description = "Artist ID of reading schedules' owner")
-		@PathVariable("artistId") Long idolId) {
-
-		LocalDate current = LocalDate.now();
-		LocalDate monday = current.minusDays(current.getDayOfWeek().getValue() - 1); // 1:mon ~ 7:sun
-		LocalDate sunday = monday.plusDays(7); // 1:mon + 7 = 7:sun + 1day
-	//	System.out.printf("Service: from %s to %s\n", monday.toString(), sunday.toString());
-
-		CalendarResponse response;
-		HttpStatus httpStatus;
-		List<org.springframework.samples.petclinic.calendar.Calendar> list = calService.readFromTo(idolId, monday, sunday);
-		if (list.size() > 0) {
-			List<CalendarDto> dtoArray = new ArrayList<>();
-			for (org.springframework.samples.petclinic.calendar.Calendar cal : list)
-				dtoArray.add(new CalendarDto(cal));
-
-			httpStatus = HttpStatus.OK;
-			response = CalendarResponse.builder()
-				.success(true)
-				.statusCode(httpStatus.value())
-				.message("조회 성공")
-				.plans(dtoArray)
-				.planCount(dtoArray.size()).build();
-		} else {
-
-			httpStatus = HttpStatus.NO_CONTENT;
-			response = CalendarResponse.builder()
+			// found nothing
+		//	httpStatus = HttpStatus.NO_CONTENT;
+			httpStatus = HttpStatus.OK; // for returning response body
+			response = FollowResponse.builder()
 				.success(false)
 				.statusCode(httpStatus.value())
 				.message("조회된 내용이 없습니다.")
-				.plans(Collections.emptyList())
-				.planCount(0).build();
+				.totalSize(0)
+				.IDs(Collections.emptyList())
+				.responseCount(0).build();
 		}
 
 		return new ResponseEntity<>(response, httpStatus);
 	}
 
-	@GetMapping("/artists/{artistId}/month") // Read
-	@Operation(summary = "Read this month's schedule", description = "Read this month's schedules of an artist")
+	///////////////////////////////////////////////////////////////////////////
+	// USER
+
+	//	HTTP POST /v1/follow/users/:userid/users/:followid
+	@PostMapping("/users/{userId}/users/{followId}") // Create
+	@Operation(summary = "Set user follows a user", description = "Create a follow of userId to followId")
 	@ApiResponse(responseCode = "200", description = "OK")
-	@ApiResponse(responseCode = "204", description = "NO CONTENT")
-	@ApiResponse(responseCode = "404", description = "NOT FOUND")
-	public ResponseEntity<CalendarResponse> readMonth(
-		@Parameter(description = "Artist ID of reading schedules' owner")
-		@PathVariable("artistId") Long idolId) {
+	public ResponseEntity<FollowResponse> CreateUserFollowUser(
+		@Parameter(description = "User ID of follow/following")
+		@PathVariable("userId") Long userId,
 
-		LocalDate current = LocalDate.now();
-		LocalDate firstday = current.withDayOfMonth(1); // Jun 1st
-		LocalDate last_day = current.withDayOfMonth(current.lengthOfMonth()).plusDays(1); // July 1st
-	//	System.out.printf("Service: from %s to %s\n", firstday.toString(), last_day.toString());
+		@Parameter(description = "follow ID for follower/followed")
+		@PathVariable("followId") Long followId) {
 
-		CalendarResponse response;
-		HttpStatus httpStatus;
-		List<org.springframework.samples.petclinic.calendar.Calendar> list = calService.readFromTo(idolId, firstday, last_day);
-		if (list.size() > 0) {
-			List<CalendarDto> dtoArray = new ArrayList<>();
-			for (org.springframework.samples.petclinic.calendar.Calendar cal : list)
-				dtoArray.add(new CalendarDto(cal));
+		List<Long> idList = new ArrayList<>();
 
-			httpStatus = HttpStatus.OK;
-			response = CalendarResponse.builder()
-				.success(true)
-				.statusCode(httpStatus.value())
-				.message("조회 성공")
-				.plans(dtoArray)
-				.planCount(dtoArray.size()).build();
-		} else {
+		if (followService.followUser(userId, followId) != true		||	// create relationship
+			followService.isUserFollowUser(userId, followId) != true) {	// check relationship
 
-			httpStatus = HttpStatus.NO_CONTENT;
-			response = CalendarResponse.builder()
-				.success(false)
-				.statusCode(httpStatus.value())
-				.message("조회된 내용이 없습니다.")
-				.plans(Collections.emptyList())
-				.planCount(0).build();
+			return responseIdList(idList, 0);
 		}
 
-		return new ResponseEntity<>(response, httpStatus);
+		idList.add(followId); // build response
+		return responseIdList(idList, 1);
 	}
 
-	@GetMapping("/artists/{artistId}/weekfrom") // Read
-	@Operation(summary = "Read a week's schedule from date", description = "Read a week's schedules of an artist from date")
+//	HTTP GET /v1/follow/users/:userid/users param?=num  Count, List(num)
+	@GetMapping("/users/{userId}/users") // Read
+	@Operation(summary = "Get following user list", description = "Read user's following user list & size")
 	@ApiResponse(responseCode = "200", description = "OK")
-	@ApiResponse(responseCode = "204", description = "NO CONTENT")
-	@ApiResponse(responseCode = "404", description = "NOT FOUND")
-	public ResponseEntity<CalendarResponse> readWeekFrom(
-		@Parameter(description = "Artist ID of reading schedules' owner")
-		@PathVariable("artistId") Long idolId,
+//	@ApiResponse(responseCode = "204", description = "NO CONTENT")
+//	@ApiResponse(responseCode = "404", description = "NOT FOUND")
+	public ResponseEntity<FollowResponse> readUserFollowUserList(
+		@Parameter(description = "User ID of reading following list of users")
+		@PathVariable("userId") Long userId,
 
-		@Parameter(name = "date", description = "Start date of a week schedules: 2000-12-24")
-		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+		@Parameter(name = "size", description = "max size of reading user list")
+		@RequestParam Integer size) {
 
-		LocalDate monday = date.minusDays(date.getDayOfWeek().getValue() - 1); // 1:mon ~ 7:sun
-		LocalDate sunday = monday.plusDays(7); // 1:mon + 7 = 7:sun + 1day
-	//	System.out.printf("Service: from %s to %s\n", monday.toString(), sunday.toString());
-
-		CalendarResponse response;
-		HttpStatus httpStatus;
-		List<org.springframework.samples.petclinic.calendar.Calendar> list = calService.readFromTo(idolId, monday, sunday);
-		if (list.size() > 0) {
-			List<CalendarDto> dtoArray = new ArrayList<>();
-			for (org.springframework.samples.petclinic.calendar.Calendar cal : list)
-				dtoArray.add(new CalendarDto(cal));
-
-			httpStatus = HttpStatus.OK;
-			response = CalendarResponse.builder()
-				.success(true)
-				.statusCode(httpStatus.value())
-				.message("조회 성공")
-				.plans(dtoArray)
-				.planCount(dtoArray.size()).build();
-		} else {
-
-			httpStatus = HttpStatus.NO_CONTENT;
-			response = CalendarResponse.builder()
-				.success(false)
-				.statusCode(httpStatus.value())
-				.message("조회된 내용이 없습니다.")
-				.plans(Collections.emptyList())
-				.planCount(0).build();
-		}
-
-		return new ResponseEntity<>(response, httpStatus);
+		return responseIdList(followService.getUserFollowUserList(userId), size);
 	}
 
-	@GetMapping("/artists/{artistId}/monthfrom") // Read
-	@Operation(summary = "Read a month's schedule from date", description = "Read a month's schedules of an artist from date")
+//	HTTP DELETE /v1/follow/users/:userid/users/:followid
+	@DeleteMapping("/users/{userId}/users/{followId}") // Delete
+	@Operation(summary = "Set user unfollows a user", description = "Delete a follow of userId to followId")
 	@ApiResponse(responseCode = "200", description = "OK")
-	@ApiResponse(responseCode = "204", description = "NO CONTENT")
-	@ApiResponse(responseCode = "404", description = "NOT FOUND")
-	public ResponseEntity<CalendarResponse> readMonthFrom(
-		@Parameter(description = "Artist ID of reading schedules' owner")
-		@PathVariable("artistId") Long idolId,
+	public ResponseEntity<FollowResponse> DeleteUserFollowUser(
+		@Parameter(description = "User ID of unfollow/unfollowing")
+		@PathVariable("userId") Long userId,
 
-		@Parameter(name = "date", description = "Start date of a month schedules")
-		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+		@Parameter(description = "follow ID for unfollower/unfollowed")
+		@PathVariable("followId") Long followId) {
 
-		LocalDate firstday = date.withDayOfMonth(1); // Jun 1st
-		LocalDate last_day = date.withDayOfMonth(date.lengthOfMonth()).plusDays(1); // July 1st
-		System.out.printf("Service: from %s to %s\n", firstday.toString(), last_day.toString());
+		if (followService.unfollowUser(userId, followId) != true	||	// create relationship
+			followService.isUserFollowUser(userId, followId) != false) {// check relationship
 
-		CalendarResponse response;
-		HttpStatus httpStatus;
-		List<org.springframework.samples.petclinic.calendar.Calendar> list = calService.readFromTo(idolId, firstday, last_day);
-		if (list.size() > 0) {
-			List<CalendarDto> dtoArray = new ArrayList<>();
-			for (org.springframework.samples.petclinic.calendar.Calendar cal : list)
-				dtoArray.add(new CalendarDto(cal));
-
-			httpStatus = HttpStatus.OK;
-			response = CalendarResponse.builder()
-				.success(true)
-				.statusCode(httpStatus.value())
-				.message("조회 성공")
-				.plans(dtoArray)
-				.planCount(dtoArray.size()).build();
-		} else {
-
-			httpStatus = HttpStatus.NO_CONTENT;
-			response = CalendarResponse.builder()
-				.success(false)
-				.statusCode(httpStatus.value())
-				.message("조회된 내용이 없습니다.")
-				.plans(Collections.emptyList())
-				.planCount(0).build();
+			// return failure;false by empty list
+			return responseIdList(Collections.emptyList(), 0);
 		}
 
-		return new ResponseEntity<>(response, httpStatus);
+		// return success;ture with total count and zero list, so you need an override
+		return responseIdList(followService.getUserFollowUserList(userId), 0, true);
 	}
 
-	@GetMapping("/plans/{planId}") // Read
-	@Operation(summary = "Read a schedule", description = "Read a schedule by its id")
-	@ApiResponse(responseCode = "200", description = "OK",		 content = @Content(schema = @Schema(implementation = CalendarResponse.class)))
-	@ApiResponse(responseCode = "404", description = "NOT FOUND",content = @Content(schema = @Schema(implementation = CalendarResponse.class)))
-	public ResponseEntity<CalendarResponse> readPlan(
-		@Parameter(description = "Plan(Schedule) ID of schedule")
-		@PathVariable("planId") Long planId) {
-
-		CalendarResponse response;
-		HttpStatus httpStatus;
-		Optional<org.springframework.samples.petclinic.calendar.Calendar> optPlan = calService.read(planId);
-		if (optPlan.isPresent()) {
-			CalendarDto calDto = new CalendarDto(optPlan.get());
-
-			httpStatus = HttpStatus.OK;
-			response = CalendarResponse.builder()
-				.success(true)
-				.statusCode(httpStatus.value())
-				.message("사용자 조회 성공")
-				.plans(Arrays.asList(calDto))
-				.planCount(1).build();
-		} else {
-
-			httpStatus = HttpStatus.NOT_FOUND;
-			response = CalendarResponse.builder()
-				.success(false)
-				.statusCode(httpStatus.value())
-				.message("사용자를 찾을 수 없습니다.")
-				.plans(Collections.emptyList())
-				.planCount(0).build();
-		}
-
-		return new ResponseEntity<>(response, httpStatus);
-	}
-
-	@PatchMapping(value = "/plans/{planId}") // Update
-	@Operation(summary = "Update a schedule", description = "Modify a schedule by its id")
-	@ApiResponse(responseCode = "200", description = "OK",						content = @Content(schema = @Schema(implementation = CalendarResponse.class)))
-	@ApiResponse(responseCode = "400", description = "BAD REQUEST",				content = @Content(schema = @Schema(implementation = CalendarResponse.class)))
-	@ApiResponse(responseCode = "404", description = "NOT FOUND",				content = @Content(schema = @Schema(implementation = CalendarResponse.class)))
-	@ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR",	content = @Content(schema = @Schema(implementation = CalendarResponse.class)))
-	public ResponseEntity<CalendarResponse>  update(
-		@Parameter(description = "Plan(Schedule) ID of schedule")
-		@PathVariable("planId") Long planId,
-
-		@Parameter(name = "calendarDto", description = "schedule Data Transfer Object (DTO), id will be ignored")
-		@RequestBody CalendarDto calendarDto) {
-
-		CalendarResponse response;
-		HttpStatus httpStatus;
-		if (calService.update(planId, calendarDto)) {
-		//	Optional<Calendar> optCal = calService.read(planId);
-		//	Calendar cal = optCal.get(); cal.setId(planId) ...
-			calendarDto.setId(planId); // re-query for changes is burden
-
-			httpStatus = HttpStatus.OK;
-			response = CalendarResponse.builder()
-				.success(true)
-				.statusCode(httpStatus.value())
-				.message("조회 성공")
-				.plans(Arrays.asList(calendarDto))
-				.planCount(1).build();
-		} else {
-			Optional<Calendar> optPlan = calService.read(planId);
-			if (optPlan.isEmpty()) {
-
-				httpStatus = HttpStatus.NOT_FOUND;
-				response = CalendarResponse.builder()
-					.success(false)
-					.statusCode(httpStatus.value())
-					.message("요청한 항목을 찾을 수 없습니다.")
-					.plans(Collections.emptyList())
-					.planCount(0).build();
-			} else {
-
-				httpStatus = HttpStatus.BAD_REQUEST;
-				response = CalendarResponse.builder()
-					.success(false)
-					.statusCode(httpStatus.value())
-					.message("잘못된 요청입니다.")
-					.plans(Collections.emptyList())
-					.planCount(0).build();
-			}
-		}
-
-		return new ResponseEntity<>(response, httpStatus);
-	}
-
-	@DeleteMapping("/plans/{planId}") // Delete
-	@Operation(summary = "Delete a schedule", description = "Delete a schedule")
+//	HTTP GET /v1/follow/users/:userid/users/:followid   Boolean
+	@GetMapping("/users/{userId}/users/{followId}") // Read
+	@Operation(summary = "Get user is followed or not", description = "Return true/false for user following followId")
 	@ApiResponse(responseCode = "200", description = "OK")
-	@ApiResponse(responseCode = "404", description = "NOT FOUND")
-	public ResponseEntity<CalendarResponse> delete(
-		@Parameter(description = "Plan(Schedule) ID of schedule")
-		@PathVariable("planId") Long planId) {
+	public ResponseEntity<Boolean> isUserFollowUser(
+		@Parameter(description = "User ID of reading following list of users")
+		@PathVariable("userId") Long userId,
 
-		CalendarResponse response;
-		HttpStatus httpStatus;
-		if (calService.delete(planId)) {
+		@Parameter(description = "follow ID for checking user following her/him")
+		@PathVariable("followId") Long followId) {
 
-			httpStatus = HttpStatus.OK;
-			response = CalendarResponse.builder()
-				.success(true)
-				.statusCode(httpStatus.value())
-				.message("삭제 성공")
-				.plans(Collections.emptyList())
-				.planCount(0).build();
-		} else {
+		if (followService.isUserFollowUser(userId, followId) != true)
+			return ResponseEntity.ok(false);
 
-			httpStatus = HttpStatus.NOT_FOUND;
-			response = CalendarResponse.builder()
-				.success(false)
-				.statusCode(httpStatus.value())
-				.message("요청한 항목을 찾을 수 없습니다.")
-				.plans(Collections.emptyList())
-				.planCount(0).build();
+		return ResponseEntity.ok(true);
+	}
+
+//	HTTP GET /v1/follow/users/:userid/followers param?=num    Count, List(num)
+	@GetMapping("/users/{userId}/followers") // Read
+	@Operation(summary = "Get user's follower user list", description = "Read user's follower user list & size")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> readUserFollowerUserList(
+		@Parameter(description = "User ID of reading follower list of users")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(name = "size", description = "max size of reading user list")
+		@RequestParam Integer size) {
+
+		return responseIdList(followService.getUserFollowerUserList(userId), size);
+	}
+
+//	HTTP GET /v1/follow/users/:userid/follower3         List(num)
+	@GetMapping("/users/{userId}/follower3") // Read
+	@Operation(summary = "Get user's 3 follower user list", description = "Read user's three follower user list")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> readUser3FollowerUserList(
+		@Parameter(description = "User ID of reading follower list of users")
+		@PathVariable("userId") Long userId) {
+
+		return readUserFollowerUserList(userId, 3);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// IDOL
+
+//	HTTP POST /v1/follow/users/:userid/idols/:idolid
+	@PostMapping("/users/{userId}/idols/{idolId}") // Create
+	@Operation(summary = "Set user follows an idol", description = "Create a follow of userId to idolId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> CreateUserFollowIdol(
+		@Parameter(description = "User ID of follow/following")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Idol ID for follower/followed")
+		@PathVariable("idolId") Long idolId) {
+
+		List<Long> idList = new ArrayList<>();
+
+		if (followService.followIdol(userId, idolId) != true		||	// create relationship
+			followService.isUserFollowIdol(userId, idolId) != true) {	// check relationship
+
+			return responseIdList(idList, 0);
 		}
 
-		return new ResponseEntity<>(response, httpStatus);
+		idList.add(idolId); // build response
+		return responseIdList(idList, 1);
+	}
+
+//	HTTP DELETE /v1/follow/users/:userid/idols/:idolid
+	@DeleteMapping("/users/{userId}/idols/{idolId}") // Delete
+	@Operation(summary = "Set user unfollows an idol", description = "Delete a follow of userId to idolId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> DeleteUserFollowIdol(
+		@Parameter(description = "User ID of unfollow/unfollowing")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Idol ID for unfollower/unfollowed")
+		@PathVariable("idolId") Long idolId) {
+
+		if (followService.unfollowIdol(userId, idolId) != true	||	// create relationship
+			followService.isUserFollowIdol(userId, idolId) != false) {// check relationship
+
+			// return failure;false by empty list
+			return responseIdList(Collections.emptyList(), 0);
+		}
+
+		// return success;ture with total count and zero list, so you need an override
+		return responseIdList(followService.getUserFollowIdolList(userId), 0, true);
+	}
+
+	//	HTTP GET /v1/follow/users/:userid/idols param?=num  Count, List(num)
+	@GetMapping("/users/{userId}/idols") // Read
+	@Operation(summary = "Get following idol list", description = "Read user's following idol list & size")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> readUserFollowIdolList(
+		@Parameter(description = "User ID of reading following list of idols")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(name = "size", description = "max size of reading idol list")
+		@RequestParam Integer size) {
+
+		return responseIdList(followService.getUserFollowIdolList(userId), size);
+	}
+
+//	HTTP GET /v1/follow/users/:userid/idols/:idolid     Boolean
+	@GetMapping("/users/{userId}/idols/{idolId}") // Read
+	@Operation(summary = "Get idol is followed or not", description = "Return true/false for user following idolId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<Boolean> isUserFollowIdol(
+		@Parameter(description = "User ID of reading following list of idols")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Idol ID for checking user following idol")
+		@PathVariable("idolId") Long idolId) {
+
+		if (followService.isUserFollowIdol(userId, idolId) != true)
+			return ResponseEntity.ok(false);
+
+		return ResponseEntity.ok(true);
+	}
+
+//	HTTP GET /v1/follow/idols/:userid/followers param?=num    Count, List(num)
+	@GetMapping("/idols/{idolId}/followers") // Read
+	@Operation(summary = "Get idol's follower user list", description = "Read idol's follower user list & size")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> readIdolFollowerUserList(
+		@Parameter(description = "Idol ID of reading follower list of users")
+		@PathVariable("idolId") Long idolId,
+
+		@Parameter(name = "size", description = "max size of reading user list")
+		@RequestParam Integer size) {
+
+		return responseIdList(followService.getIdolFollowerUserList(idolId), size);
+	}
+
+//	HTTP GET /v1/follow/idols/:idolid/follower3         List(num)
+	@GetMapping("/idols/{idolId}/follower3") // Read
+	@Operation(summary = "Get idol's 3 follower user list", description = "Read idol's three follower user list")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> readIdol3FollowerUserList(
+		@Parameter(description = "Idol ID of reading follower list of users")
+		@PathVariable("idolId") Long idolId) {
+
+		return readIdolFollowerUserList(idolId, 3);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// ITEM
+
+	//	HTTP GET /v1/follow/users/:userid/items param?=num  Count, List(num)
+	@GetMapping("/users/{userId}/items") // Read
+	@Operation(summary = "Get following item list", description = "Read user's following item list & size")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> readUserFollowItemList(
+		@Parameter(description = "User ID of reading following list of items")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(name = "size", description = "max size of reading item list")
+		@RequestParam Integer size) {
+
+		return responseIdList(followService.getUserFollowItemList(userId), size);
+	}
+
+//	HTTP GET /v1/follow/users/:userid/items/:itemid     Boolean
+	@GetMapping("/users/{userId}/items/{itemId}") // Read
+	@Operation(summary = "Get item is followed or not", description = "Return true/false for user following itemId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<Boolean> isUserFollowItem(
+		@Parameter(description = "User ID of reading following list of items")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Item ID for checking user following item")
+		@PathVariable("itemId") Long itemId) {
+
+		if (followService.isUserFollowItem(userId, itemId) != true)
+			return ResponseEntity.ok(false);
+
+		return ResponseEntity.ok(true);
+	}
+
+//	HTTP POST /v1/follow/users/:userid/items/:itemid
+	@PostMapping("/users/{userId}/items/{itemId}") // Create
+	@Operation(summary = "Set user follows an item", description = "Create a follow of userId to itemId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> CreateUserFollowItem(
+		@Parameter(description = "User ID of follow/following")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Item ID for follower/followed")
+		@PathVariable("itemId") Long itemId) {
+
+		List<Long> idList = new ArrayList<>();
+
+		if (followService.followItem(userId, itemId) != true		||	// create relationship
+			followService.isUserFollowItem(userId, itemId) != true) {	// check relationship
+
+			return responseIdList(idList, 0);
+		}
+
+		idList.add(itemId); // build response
+		return responseIdList(idList, 1);
+	}
+
+//	HTTP DELETE /v1/follow/users/:userid/items/:itemid
+	@DeleteMapping("/users/{userId}/items/{itemId}") // Delete
+	@Operation(summary = "Set user unfollows an item", description = "Delete a follow of userId to itemId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> DeleteUserFollowItem(
+		@Parameter(description = "User ID of unfollow/unfollowing")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Item ID for unfollower/unfollowed")
+		@PathVariable("itemId") Long itemId) {
+
+		if (followService.unfollowItem(userId, itemId) != true	||	// create relationship
+			followService.isUserFollowItem(userId, itemId) != false) {// check relationship
+
+			// return failure;false by empty list
+			return responseIdList(Collections.emptyList(), 0);
+		}
+
+		// return success;ture with total count and zero list, so you need an override
+		return responseIdList(followService.getUserFollowItemList(userId), 0, true);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// MEET
+
+	//	HTTP GET /v1/follow/users/:userid/meets param?=num  Count, List(num)
+	@GetMapping("/users/{userId}/meets") // Read
+	@Operation(summary = "Get following meet list", description = "Read user's following meet list & size")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> readUserFollowMeetList(
+		@Parameter(description = "User ID of reading following list of meets")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(name = "size", description = "max size of reading meet list")
+		@RequestParam Integer size) {
+
+		return responseIdList(followService.getUserFollowMeetList(userId), size);
+	}
+
+//	HTTP GET /v1/follow/users/:userid/meets/:meetid     Boolean
+	@GetMapping("/users/{userId}/meets/{meetId}") // Read
+	@Operation(summary = "Get meet is followed or not", description = "Return true/false for user following meetId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<Boolean> isUserFollowMeet(
+		@Parameter(description = "User ID of reading following list of meets")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Meet ID for checking user following meet")
+		@PathVariable("meetId") Long meetId) {
+
+		if (followService.isUserFollowMeet(userId, meetId) != true)
+			return ResponseEntity.ok(false);
+
+		return ResponseEntity.ok(true);
+	}
+
+//	HTTP POST /v1/follow/users/:userid/meets/:meetid
+	@PostMapping("/users/{userId}/meets/{meetId}") // Create
+	@Operation(summary = "Set user follows a meet", description = "Create a follow of userId to meetId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> CreateUserFollowMeet(
+		@Parameter(description = "User ID of follow/following")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Meet ID for follower/followed")
+		@PathVariable("meetId") Long meetId) {
+
+		List<Long> idList = new ArrayList<>();
+
+		if (followService.followMeet(userId, meetId) != true		||	// create relationship
+			followService.isUserFollowMeet(userId, meetId) != true) {	// check relationship
+
+			return responseIdList(idList, 0);
+		}
+
+		idList.add(meetId); // build response
+		return responseIdList(idList, 1);
+	}
+
+//	HTTP DELETE /v1/follow/users/:userid/meets/:meetid
+	@DeleteMapping("/users/{userId}/meets/{meetId}") // Delete
+	@Operation(summary = "Set user unfollows a meet", description = "Delete a follow of userId to meetId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> DeleteUserFollowMeet(
+		@Parameter(description = "User ID of unfollow/unfollowing")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Meet ID for unfollower/unfollowed")
+		@PathVariable("meetId") Long meetId) {
+
+		if (followService.unfollowMeet(userId, meetId) != true	||	// create relationship
+			followService.isUserFollowMeet(userId, meetId) != false) {// check relationship
+
+			// return failure;false by empty list
+			return responseIdList(Collections.emptyList(), 0);
+		}
+
+		// return success;ture with total count and zero list, so you need an override
+		return responseIdList(followService.getUserFollowMeetList(userId), 0, true);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// PLACE
+
+	//	HTTP GET /v1/follow/users/:userid/places param?=num  Count, List(num)
+	@GetMapping("/users/{userId}/places") // Read
+	@Operation(summary = "Get following place list", description = "Read user's following place list & size")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> readUserFollowPlaceList(
+		@Parameter(description = "User ID of reading following list of places")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(name = "size", description = "max size of reading place list")
+		@RequestParam Integer size) {
+
+		return responseIdList(followService.getUserFollowPlaceList(userId), size);
+	}
+
+//	HTTP GET /v1/follow/users/:userid/places/:placeid     Boolean
+	@GetMapping("/users/{userId}/places/{placeId}") // Read
+	@Operation(summary = "Get place is followed or not", description = "Return true/false for user following placeId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<Boolean> isUserFollowPlace(
+		@Parameter(description = "User ID of reading following list of places")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Place ID for checking user following place")
+		@PathVariable("placeId") Long placeId) {
+
+		if (followService.isUserFollowPlace(userId, placeId) != true)
+			return ResponseEntity.ok(false);
+
+		return ResponseEntity.ok(true);
+	}
+
+//	HTTP POST /v1/follow/users/:userid/places/:placeid
+	@PostMapping("/users/{userId}/places/{placeId}") // Create
+	@Operation(summary = "Set user follows a place", description = "Create a follow of userId to placeId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> CreateUserFollowPlace(
+		@Parameter(description = "User ID of follow/following")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Place ID for follower/followed")
+		@PathVariable("placeId") Long placeId) {
+
+		List<Long> idList = new ArrayList<>();
+
+		if (followService.followPlace(userId, placeId) != true		||	// create relationship
+			followService.isUserFollowPlace(userId, placeId) != true) {	// check relationship
+
+			return responseIdList(idList, 0);
+		}
+
+		idList.add(placeId); // build response
+		return responseIdList(idList, 1);
+	}
+
+//	HTTP DELETE /v1/follow/users/:userid/places/:placeid
+	@DeleteMapping("/users/{userId}/places/{placeId}") // Delete
+	@Operation(summary = "Set user unfollows a place", description = "Delete a follow of userId to placeId")
+	@ApiResponse(responseCode = "200", description = "OK")
+	public ResponseEntity<FollowResponse> DeleteUserFollowPlace(
+		@Parameter(description = "User ID of unfollow/unfollowing")
+		@PathVariable("userId") Long userId,
+
+		@Parameter(description = "Place ID for unfollower/unfollowed")
+		@PathVariable("placeId") Long placeId) {
+
+		if (followService.unfollowPlace(userId, placeId) != true	||	// create relationship
+			followService.isUserFollowPlace(userId, placeId) != false) {// check relationship
+
+			// return failure;false by empty list
+			return responseIdList(Collections.emptyList(), 0);
+		}
+
+		// return success;ture with total count and zero list, so you need an override
+		return responseIdList(followService.getUserFollowPlaceList(userId), 0, true);
 	}
 }
-*/

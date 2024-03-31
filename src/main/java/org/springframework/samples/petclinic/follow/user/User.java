@@ -1,20 +1,11 @@
 package org.springframework.samples.petclinic.follow.user;
 
+import org.springframework.samples.petclinic.follow.idol.Idol;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Relationship;
-import org.springframework.samples.petclinic.follow.item.Item;
-import org.springframework.samples.petclinic.follow.idol.Idol;
-import org.springframework.samples.petclinic.follow.meet.Meet;
-import org.springframework.samples.petclinic.follow.place.Place;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import org.springframework.data.neo4j.core.schema.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -25,7 +16,7 @@ public class User {
 	@GeneratedValue
 	private Long id;
 
-	// @Property
+//	@Property
 	private Long userId;
 	private String name;
 	private String email;
@@ -52,6 +43,12 @@ public class User {
 		}
 		users.add(user);
 	}
+
+//	public void unfollowWith(User user) { // it's not working
+//		if (users != null) {
+//			users.remove(user);
+//		}
+//	}
 
 	// get count of following users
 	public int followUserCount() {
