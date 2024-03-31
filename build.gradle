@@ -1,8 +1,10 @@
 plugins {
   id 'java'
-  id 'org.springframework.boot' version '3.1.1'
+  id 'org.springframework.boot' version '3.2.2'
   id 'io.spring.dependency-management' version '1.1.0'
   id 'org.graalvm.buildtools.native' version '0.9.23'
+  // added for swagger by tpk
+  id 'org.springdoc.openapi-gradle-plugin' version '1.8.0'
 }
 
 apply plugin: 'java'
@@ -38,14 +40,16 @@ dependencies {
 //implementation 'org.springframework.data.neo4j.repository'
 //implementation 'org.springframework.data.neo4j.repository.config'
 //implementation 'org.springframework.data.neo4j.repository.support'
-
 //implementation 'org.neo4j.driver:neo4j-java-driver-spring-boot-starter:4.3.6.0'
 //implementation 'org.neo4j.driver:neo4j-java-driver:5.6.0'
-//  implementation 'org.neo4j.driver:neo4j-java-driver'
+//implementation 'org.neo4j.driver:neo4j-java-driver'
 //compileOnly group: 'org.springframework', name: 'spring-tx', version: '5.2.7.RELEASE'
- //   implementation 'org.springframework.transaction.ReactiveTransactionManager'
+//implementation 'org.springframework.transaction.ReactiveTransactionManager'
 
-
+  // swagger, spring doc, tpk
+  implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+//implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui'
+//implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
 
   // lombok, tpk
   compileOnly 'org.projectlombok:lombok'
@@ -70,3 +74,17 @@ dependencies {
 tasks.named('test') {
   useJUnitPlatform()
 }
+
+//querydsl 추가 시작
+def querydslDir = "$buildDir/generated/querydsl"
+
+// java source set 에 querydsl QClass 위치 추가
+sourceSets {
+    main.java.srcDirs += [ querydslDir ]
+}
+
+// gradle clean 시에 QClass 디렉토리 삭제
+clean {
+    delete file(querydslDir)
+}
+//querydsl 추가 끝

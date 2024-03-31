@@ -1,30 +1,33 @@
 package org.springframework.samples.petclinic.follow.idol;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.samples.petclinic.follow.user.User;
 
-import java.util.Collections;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Getter
-//@Setter
+@Setter
 @Node("Idol")
 public class Idol {
 	@Id
 	@GeneratedValue
 	private Long id;
 
-	// @Property
+//	@Property
 	private Long idolId;
 	private String name;
 
-	public Idol(Long idolId, String name) {
+	private Boolean unit;
+	private Boolean gender;
+//	private int agency;
+
+	public Idol(Long idolId, String name, Boolean unit, Boolean gender) {
 		this.idolId = idolId;
 		this.name = name;
+		this.unit = unit;
+		this.gender = gender;
 	}
 
 	public String toString() {
