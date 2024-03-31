@@ -33,6 +33,7 @@ import org.springframework.samples.petclinic.follow.user.User;
 import org.springframework.samples.petclinic.follow.user.UserRepository;
 //import org.springframework.samples.petclinic.follow.FollowService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -109,11 +110,11 @@ public class PetClinicApplication {
 				Long userId;
 				userId = tony.getUserId();
 				log.info("following {}, follower {}",
-					userRepository.getFollowingCount(userId), userRepository.getFollowerCount(userId));
+					userRepository.getFollowUserCount(userId), userRepository.getFollowerUserCount(userId));
 
 				userId = sam.getUserId();
 				log.info("following {}, follower {}",
-					userRepository.getFollowingCount(userId), userRepository.getFollowerCount(userId));
+					userRepository.getFollowUserCount(userId), userRepository.getFollowerUserCount(userId));
 			}
 
 			if (step == 2) {
@@ -125,13 +126,24 @@ public class PetClinicApplication {
 				follow.addIdol(9999L, "Black Pink99", true, true);
 				follow.addIdol(9998L, "BTS98", true, false);
 
+				follow.followUser(9998L, 9999L); // Sam99 follows Tony99
+
 				follow.followIdol(9999L, 9999L); // Tony99 follows Black Pink99
 				follow.followIdol(9998L, 9999L); // Sam99 follows Black Pink99
 				follow.followIdol(9998L, 9998L); // Sam99 follows BTS98
 
-				follow.addPlace(9999L, "Popup99", "Seoul", 9998L);
-				follow.followPlace(9999L, 9999L); // Tony99 follows Popup99
-				follow.followPlace(9998L, 9999L); // Sam99 follows Popup99
+				// test Cypher query return List<Long>
+			//	List<Long> userIds = follow.getIdolFollowerList(9999L);
+			//	for (Long id : userIds) log.warn("follower Id: {}", id);
+
+				// test remove item of list
+			//	List<Long> list = new ArrayList<>();
+			//	for (int i = 0; i < 10; i++) list.add((long) i);
+			//	for (long id : list) log.warn("init Id {}", id);
+
+			//	//while (list.size() > 3) list.remove(list.size() -1);
+			//	for (int i = list.size() -1; i > 3 -1; i--) list.remove(i);
+			//	for (long id : list) log.warn("last Id {}", id);
 
 				follow.addItem(9999L,"Picture99", 1, 9998L, 9999L);
 				follow.followItem(9998L, 9999L); // Sam99 follows Picture99
@@ -139,6 +151,23 @@ public class PetClinicApplication {
 				follow.addMeet(9999L, "FanMeet99", 9999L, 9999L);
 				follow.followMeet(9999L, 9999L); // Tony99 follows FanMeet99
 				follow.followMeet(9998L, 9999L); // Sam99 follows FanMeet99
+
+				follow.addPlace(9999L, "Popup99", "Seoul", 9998L);
+				follow.followPlace(9999L, 9999L); // Tony99 follows Popup99
+				follow.followPlace(9998L, 9999L); // Sam99 follows Popup99
+
+			//	follow.deleteUser(9999L); // delete Tony99
+			//	follow.modifyUser(9999L, "Anthony"); // modify Tony99 to Anthony
+
+//				follow.deleteArtist(9999L); // delete BlackPink99
+//				follow.deleteGoods(9999L); // delete Picture99
+//				follow.deleteSocailing(9999L); // delete FanMeet99
+//				follow.deletePlace(9999L); // delete Popup99
+
+//				follow.modifyArtist(9999L, "블핑", false, true);
+//				follow.modifyGoods(9999L, "그림", 2001, 9997L, 9997L);
+//				follow.modifySocailing(9999L, "미팅", 9997L, 9997L);
+//				follow.modifyPlace(9999L, "팝콘", "평화로운", 9997L);
 			}
 
 /*			User roy = new Person("Roy");
