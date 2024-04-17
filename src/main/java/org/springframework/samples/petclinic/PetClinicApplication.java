@@ -24,6 +24,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.samples.petclinic.follow.FollowService;
@@ -45,6 +46,7 @@ import java.util.List;
  */
 @SpringBootApplication
 @EnableNeo4jRepositories // for neo4j, tpk
+//@ComponentScan(nameGenerator = CustomBeanNameGenerator.class)
 @ImportRuntimeHints(PetClinicRuntimeHints.class)
 public class PetClinicApplication {
 
@@ -55,6 +57,9 @@ public class PetClinicApplication {
 //	}
 //}
 	public static void main(String[] args) throws Exception {
+		CustomBeanNameGenerator beanNameGenerator = new CustomBeanNameGenerator();
+		//beanNameGenerator.addBasePackages("org.springframework.samples.petclinic.follow");
+
 		SpringApplication.run(PetClinicApplication.class, args);
 //		System.exit(0);
 	}

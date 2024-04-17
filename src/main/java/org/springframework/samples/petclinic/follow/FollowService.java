@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.follow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.samples.petclinic.PetClinicApplication;
 import org.springframework.samples.petclinic.follow.item.Item;
 import org.springframework.samples.petclinic.follow.item.ItemRepository;
@@ -14,13 +15,17 @@ import org.springframework.samples.petclinic.follow.place.Place;
 import org.springframework.samples.petclinic.follow.place.PlaceRepository;
 import org.springframework.samples.petclinic.follow.user.User;
 import org.springframework.samples.petclinic.follow.user.UserRepository; // follow object
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class FollowService {
+
 	private final static Logger log = // TODO: remove it
 		LoggerFactory.getLogger(PetClinicApplication.class);
 
@@ -32,8 +37,11 @@ public class FollowService {
 	private ItemRepository itemRepository;
 	@Autowired
 	private MeetRepository meetRepository;
+	@Qualifier("follow.PlaceRepository")
 	@Autowired
 	private PlaceRepository placeRepository;
+
+//	public FollowService(PlaceRepository placeRepository) { this.placeRepository = placeRepository; }
 
 	public void deleteAll() { // delete all nodes
 		userRepository.deleteAll();
