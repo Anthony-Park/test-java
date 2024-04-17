@@ -1,13 +1,17 @@
 package org.springframework.samples.petclinic.follow.place;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.samples.petclinic.follow.meet.Meet;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
-@Repository
+//@Repository
+@Repository("follow.PlaceRepository")
+//@Component
 //public interface PlaceRepository extends ReactiveNeo4jRepository<Place, Long> {
 public interface PlaceRepository extends Neo4jRepository<Place, Long> {
 //	Mono<Place> findByPlaceid(Long placeId);
